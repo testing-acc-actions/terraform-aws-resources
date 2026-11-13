@@ -13,6 +13,28 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Check whether GitHub secrets are available
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ]; then
+            echo "AWS_ACCESS_KEY_ID is available to this workflow."
+          else
+            echo "::error::AWS_ACCESS_KEY_ID is missing or unavailable."
+          fi
+
+          if [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "AWS_SECRET_ACCESS_KEY is available to this workflow."
+          else
+            echo "::error::AWS_SECRET_ACCESS_KEY is missing or unavailable."
+          fi
+
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            exit 1
+          fi
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
