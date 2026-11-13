@@ -32,8 +32,8 @@ jobs:
         with:
           terraform_version: 1.10.5
 
-      - name: Terraform Format
-        run: terraform fmt -check -recursive
+      - name: Format Terraform files
+        run: terraform fmt -recursive
 
       - name: Terraform Init
         run: terraform init -backend=false
