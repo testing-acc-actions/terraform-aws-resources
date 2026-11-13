@@ -90,3 +90,6 @@ jobs:
             echo "These commands need a state file created by a prior apply or supplied separately."
             echo "No AWS resources will be created by this workflow."
           fi
+
+      - name: Checking Terraform Plan
+        run: terraform plan
