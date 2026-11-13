@@ -1,55 +1,81 @@
 # terraform-aws-resources
 
-Beginner-to-intermediate Terraform practice for learning individual AWS resources through small, independent configurations.
+Beginner-to-intermediate Terraform practice for learning individual AWS resource configurations without connecting to or deploying into an AWS account.
 
 ## Resources covered
 
 | Folder | AWS resource | What it demonstrates |
 |---|---|---|
 | `s3/` | Amazon S3 | Bucket, versioning, encryption and public-access protection |
-| `ec2/` | Amazon EC2 | Linux instance and AMI data lookup |
+| `ec2/` | Amazon EC2 | Linux instance configuration and AMI data lookup |
 | `vpc/` | Amazon VPC | VPC, public/private subnets, internet gateway and routing |
 | `alb/` | Application Load Balancer | Load balancer, security group, target group and listener |
 | `route53/` | Amazon Route 53 | DNS CNAME record in an existing hosted zone |
 | `lambda/` | AWS Lambda | Python function, IAM execution role and deployment archive |
 | `aurora/` | Amazon Aurora PostgreSQL | Cluster, Serverless v2 instance, subnet group and security group |
 
-## Learning approach
+## GitHub Actions: Terraform Checks and Resource Showcase
 
-- Each folder is an independent Terraform root configuration.
-- Start with `main.tf`, then understand its variables and outputs.
-- Keep the first implementation readable; avoid unnecessary modules and abstractions.
-- GitHub Actions runs formatting and validation checks only.
-- No AWS infrastructure is created by GitHub Actions.
+Workflow: [`.github/workflows/terraform-checks.yml`](.github/workflows/terraform-checks.yml)
 
-## Prerequisites
+The workflow runs on pushes and pull requests targeting `main`, and can also be started manually from **Actions → Terraform Checks and Resource Showcase → Run workflow**.
 
-- Terraform CLI 1.10.0 or later.
-- AWS credentials are needed only if you later choose AWS-backed operations.
-- AWS provider defaults to `ap-south-1`; override with `aws_region`.
+It creates one independent job for each folder: `s3`, `ec2`, `vpc`, `alb`, `route53`, `lambda` and `aurora`.
 
-## Validate one folder locally
+### What each job demonstrates
 
-For example, from PowerShell:
+| Step | Command / action | Purpose |
+|---|---|---|
+| Checkout | `actions/checkout` | Gets the repository files |
+| Setup | `hashicorp/setup-terraform` | Installs Terraform CLI 1.10.5 |
+| File tree | `find` | Displays repository and resource-folder files |
+| Format | `terraform fmt -recursive` | Formats Terraform files in the runner |
+| Format check | `terraform fmt -check -recursive` | Verifies formatting |
+| Initialize | `terraform init -backend=false` | Initializes providers without a remote backend |
+| Validate | `terraform validate` | Checks configuration syntax and consistency |
+| Providers | `terraform providers` | Displays required providers |
+| Inventory | `grep` | Lists resource blocks, data sources, variables and outputs |
+| Dependency graph | `terraform graph -type=plan` | Prints the dependency graph in DOT format |
+| State inspection | `terraform state list`, `terraform show`, `terraform output` | Runs only if a Terraform state file exists |
+
+### What it intentionally does not do
+
+- Does not configure AWS credentials or connect to an AWS account.
+- Does not run `terraform plan`, `terraform apply` or destroy.
+- Does not create, update or delete AWS resources.
+
+**Important:** This is a configuration showcase, not a live infrastructure deployment. It can show resources and output declarations from the code, but real AWS resource IDs and evaluated output values require a Terraform state file. If no state file exists, the state-inspection step explains why those commands are skipped.
+
+The formatting command changes files only inside the temporary GitHub Actions runner. It does not commit formatting changes back to this repository.
+
+## Run checks locally (no AWS deployment)
+
+Prerequisite: Terraform CLI 1.10.0 or later.
+
+From PowerShell, choose one folder:
 
 ```powershell
 cd s3
 terraform fmt -recursive
 terraform init -backend=false
 terraform validate
+terraform providers
+terraform graph -type=plan
 ```
 
 Repeat for `ec2`, `vpc`, `alb`, `route53`, `lambda` and `aurora`.
 
-These commands do not create AWS resources. Validation does not prove that account permissions, quotas, IDs or runtime settings will work in a real deployment.
+To list declared blocks in a folder:
 
-## GitHub Actions
+```powershell
+Get-ChildItem -Recurse -Filter *.tf | Select-String -Pattern '^resource\s+', '^data\s+', '^variable\s+', '^output\s+'
+```
 
-The workflow in `.github/workflows/terraform-checks.yml` checks formatting and validates each independent folder. It does not configure AWS credentials and does not run `terraform plan` or `terraform apply`.
+These checks do not create AWS resources. Validation does not prove that account permissions, quotas, remote IDs, service availability or runtime settings will work in a real deployment.
 
 ## Cost and deployment safety
 
-Writing Terraform and running formatting/validation does not provision infrastructure. Do not run `terraform apply` unless you intend to create resources and have reviewed the charges.
+Formatting, initialization with `-backend=false`, validation and graph commands do not provision AWS infrastructure. Do not run `terraform apply` unless you intend to create resources and have reviewed the charges.
 
 - EC2 can incur compute, storage and public IPv4 charges.
 - ALB incurs hourly and usage charges.
@@ -74,14 +100,17 @@ The Aurora example enables deletion protection and requires a database password.
 
 ```text
 .
-├── .github/workflows/terraform-checks.yml
+├── .github/
+│   └── workflows/
+│       └── terraform-checks.yml
 ├── s3/
 ├── ec2/
 ├── vpc/
 ├── alb/
 ├── route53/
 ├── lambda/
+│   └── src/
 └── aurora/
 ```
 
-Each resource folder contains `main.tf`, `variables.tf` and `outputs.tf`. Lambda also includes its Python source.
+Each resource folder contains Terraform configuration, variables and outputs. Lambda also includes its Python source code.
