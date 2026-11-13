@@ -1,4 +1,4 @@
-name: Terraform Checks
+name: Terraform Checks and Resource Showcase
 
 on:
   push:
@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  terraform-checks:
-    name: Check ${{ matrix.folder }}
+  terraform-showcase:
+    name: Showcase ${{ matrix.folder }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,11 +32,61 @@ jobs:
         with:
           terraform_version: 1.10.5
 
+      - name: Show folder and file tree
+        working-directory: .
+        run: |
+          echo "===== RESOURCE FOLDER: ${{ matrix.folder }} ====="
+          echo "===== REPOSITORY FILE TREE ====="
+          find . -maxdepth 4 -type f ! -path './.git/*' | sort
+          echo "===== FILES IN THIS RESOURCE FOLDER ====="
+          find "${{ matrix.folder }}" -maxdepth 3 -type f | sort
+
       - name: Format Terraform files
         run: terraform fmt -recursive
 
-      - name: Terraform Init
+      - name: Verify Terraform formatting
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform without backend
         run: terraform init -backend=false
 
-      - name: Terraform Validate
+      - name: Validate Terraform configuration
         run: terraform validate
+
+      - name: Show Terraform providers
+        run: terraform providers
+
+      - name: List declared resources, data sources, variables and outputs
+        shell: bash
+        run: |
+          echo "===== RESOURCE BLOCKS ====="
+          grep -RInE '^resource[[:space:]]+"' --include='*.tf' . || true
+          echo "===== DATA SOURCE BLOCKS ====="
+          grep -RInE '^data[[:space:]]+"' --include='*.tf' . || true
+          echo "===== INPUT VARIABLES ====="
+          grep -RInE '^variable[[:space:]]+"' --include='*.tf' . || true
+          echo "===== OUTPUT DEFINITIONS ====="
+          grep -RInE '^output[[:space:]]+"' --include='*.tf' . || true
+
+      - name: Show Terraform dependency graph
+        shell: bash
+        run: |
+          echo "===== TERRAFORM GRAPH (DOT FORMAT) ====="
+          terraform graph -type=plan | head -n 100
+
+      - name: Show state and evaluated outputs when state exists
+        shell: bash
+        run: |
+          if [ -f terraform.tfstate ]; then
+            echo "===== TERRAFORM STATE LIST ====="
+            terraform state list
+            echo "===== TERRAFORM SHOW ====="
+            terraform show -no-color
+            echo "===== TERRAFORM OUTPUT ====="
+            terraform output
+          else
+            echo "No terraform.tfstate found."
+            echo "Skipping terraform state list, terraform show and terraform output."
+            echo "These commands need a state file created by a prior apply or supplied separately."
+            echo "No AWS resources will be created by this workflow."
+          fi
