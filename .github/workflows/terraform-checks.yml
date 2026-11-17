@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   terraform-showcase:
-    name: Showcase ${{ matrix.folder }}
+    name: Resource ${{ matrix.folder }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
