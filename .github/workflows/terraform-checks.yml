@@ -1,4 +1,4 @@
-name: Terraform Configuration 
+name: Terraform Code for AWS Resources
 
 on:
   push:
