@@ -1,4 +1,4 @@
-name: Terraform Checks and Resource Showcase
+name: Terraform Configuration 
 
 on:
   push:
