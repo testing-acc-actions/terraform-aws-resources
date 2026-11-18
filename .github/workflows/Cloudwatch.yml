@@ -3,7 +3,7 @@ name: CloudWatch Terraform Validation
 on:
   push:
     branches:
-      - feature/cloudwatch
+      - feature/Cloudwatch
 
   pull_request:
     branches:
