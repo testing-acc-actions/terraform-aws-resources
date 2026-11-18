@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region for CloudWatch practice"
   type        = string
-  default     = "ap-south-2"
+  default     = "ap-southeast-2"
 }
 
 variable "project_name" {
