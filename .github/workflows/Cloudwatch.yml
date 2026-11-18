@@ -1,0 +1,43 @@
+name: CloudWatch Terraform Validation
+
+on:
+  push:
+    branches:
+      - feature/cloudwatch-monitoring
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform-validation:
+    name: Terraform Format and Validate
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: cloudwatch/metric-alarm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Initialize
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform Validate
+        run: terraform validate
