@@ -1,0 +1,41 @@
+name: CloudWatch Terraform Apply
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy CloudWatch Alarm
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: cloudwatch/metric-alarm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWSACCESSKEYID }}
+          aws-secret-access-key: ${{ secrets.AWSACCESSKEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
+      - name: Terraform Initialize
+        run: terraform init -backend=false -input=false
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
