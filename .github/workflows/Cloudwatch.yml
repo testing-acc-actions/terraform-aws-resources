@@ -3,7 +3,7 @@ name: CloudWatch Terraform Validation
 on:
   push:
     branches:
-      - feature/cloudwatch-monitoring
+      - feature/cloudwatch
 
   pull_request:
     branches:
@@ -34,7 +34,7 @@ jobs:
           terraform_version: 1.10.5
 
       - name: Terraform Format Check
-        run: terraform fmt
+        run: terraform fmt -check -recursive
 
       - name: Terraform Initialize
         run: terraform init -backend=false -input=false
