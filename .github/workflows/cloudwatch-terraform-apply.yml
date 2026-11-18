@@ -13,7 +13,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: cloudwatch/metric-alarm
+        working-directory: metric-alarm
 
     steps:
       - name: Checkout repository
