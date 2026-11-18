@@ -1,9 +1,4 @@
 
-output "cloudwatch_alarm_state" {
-  description = "Current alarm state"
-  value       = aws_cloudwatch_metric_alarm.test_signal.state
-}
-
 
 output "cloudwatch_alarm_name" {
   description = "Name of the CloudWatch alarm"
