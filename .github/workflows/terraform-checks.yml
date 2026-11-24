@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: aws-resources/${{ matrix.resource }}
+        working-directory: Terraform/terraform-aws-resources/aws-resources/${{ matrix.resource }}
 
     steps:
       - name: Checkout repository
@@ -36,9 +36,9 @@ jobs:
         working-directory: .
         run: |
           echo "===== REPOSITORY FILE TREE ====="
-          find . -maxdepth 5 -type f ! -path './.git/*' | sort
+          find . -maxdepth 7 -type f ! -path './.git/*' | sort
           echo "===== CURRENT AWS RESOURCE ====="
-          find "aws-resources/${{ matrix.resource }}" -maxdepth 4 -type f | sort
+          find "Terraform/terraform-aws-resources/aws-resources/${{ matrix.resource }}" -maxdepth 4 -type f | sort
 
       - name: Check Terraform formatting
         run: terraform fmt -check -recursive
