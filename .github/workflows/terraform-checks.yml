@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   terraform-checks:
-    name: Validate \${{ matrix.resource }}
+    name: Validate ${{ matrix.resource }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: aws-resources/\${{ matrix.resource }}
+        working-directory: aws-resources/${{ matrix.resource }}
 
     steps:
       - name: Checkout repository
@@ -38,7 +38,7 @@ jobs:
           echo "===== REPOSITORY FILE TREE ====="
           find . -maxdepth 5 -type f ! -path './.git/*' | sort
           echo "===== CURRENT AWS RESOURCE ====="
-          find "aws-resources/\${{ matrix.resource }}" -maxdepth 4 -type f | sort
+          find "aws-resources/${{ matrix.resource }}" -maxdepth 4 -type f | sort
 
       - name: Check Terraform formatting
         run: terraform fmt -check -recursive
