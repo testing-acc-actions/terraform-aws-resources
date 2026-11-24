@@ -1,58 +1,61 @@
 # terraform-aws-resources
 
-Beginner-to-intermediate Terraform practice for learning individual AWS resource configurations. The repository is organized as independent examples; validation does not require AWS credentials or deploy infrastructure.
+A collection of independent Terraform configurations for learning and showcasing AWS resources. Each resource has its own folder under \`aws-resources/\`.
 
-## AWS examples
+The GitHub Actions validation workflow does not require AWS credentials and does not provision infrastructure.
 
-| Example | Resource | What it demonstrates |
+## AWS resources
+
+| Folder | AWS service | What it demonstrates |
 |---|---|---|
-| [S3](examples/aws/s3/) | Amazon S3 | Bucket, versioning, encryption and public-access protection |
-| [EC2](examples/aws/ec2/) | Amazon EC2 | Linux instance configuration and AMI data lookup |
-| [VPC](examples/aws/vpc/) | Amazon VPC | VPC, public/private subnets, internet gateway and routing |
-| [ALB](examples/aws/alb/) | Application Load Balancer | Load balancer, security group, target group and listener |
-| [Route 53](examples/aws/route53/) | Amazon Route 53 | DNS CNAME record in an existing hosted zone |
-| [Lambda](examples/aws/lambda/) | AWS Lambda | Python function, IAM execution role and deployment archive |
-| [Aurora](examples/aws/aurora/) | Amazon Aurora PostgreSQL | Cluster, Serverless v2 instance, subnet group and security group |
+| [s3](aws-resources/s3/) | Amazon S3 | Bucket, versioning, encryption and public-access protection |
+| [ec2](aws-resources/ec2/) | Amazon EC2 | Linux instance configuration and AMI data lookup |
+| [vpc](aws-resources/vpc/) | Amazon VPC | VPC, public/private subnets, internet gateway and routing |
+| [alb](aws-resources/alb/) | Application Load Balancer | Load balancer, security group, target group and listener |
+| [route53](aws-resources/route53/) | Amazon Route 53 | DNS CNAME record in an existing hosted zone |
+| [lambda](aws-resources/lambda/) | AWS Lambda | Python function, IAM execution role and deployment archive |
+| [aurora](aws-resources/aurora/) | Amazon Aurora PostgreSQL | Cluster, Serverless v2 instance, subnet group and security group |
 
-Each folder is an independent Terraform root module. Run Terraform commands from inside the relevant example directory.
+Each folder is an independent Terraform root module. Run Terraform commands from inside the relevant resource folder.
 
 ## Repository structure
 
-```text
+\`\`\`text
 .
 ├── .github/
 │   └── workflows/
 │       ├── terraform-checks.yml
 │       └── Aws-pending.yml
-├── examples/
-│   └── aws/
-│       ├── s3/
-│       ├── ec2/
-│       ├── vpc/
-│       ├── alb/
-│       ├── route53/
-│       ├── lambda/
-│       │   └── src/
-│       └── aurora/
+├── aws-resources/
+│   ├── s3/
+│   ├── ec2/
+│   ├── vpc/
+│   ├── alb/
+│   ├── route53/
+│   ├── lambda/
+│   │   └── src/
+│   └── aurora/
 ├── .gitignore
 └── README.md
-```
+\`\`\`
+
+**Why is \`.github/workflows/\` at the repository root?** GitHub Actions only discovers workflow files from this exact repository-root location. The Terraform configurations and their supporting files are grouped under \`aws-resources/\`.
 
 ## GitHub Actions: Terraform checks
 
 Workflow: [Terraform checks](.github/workflows/terraform-checks.yml)
 
-The workflow runs on pushes and pull requests targeting `main`, and can also be started manually. It runs one independent job for each AWS example.
+The workflow runs on pushes and pull requests targeting \`main\`, and can also be started manually. It runs one independent job for each AWS resource folder.
 
-Each job checks out the repository, installs Terraform CLI 1.10.5, checks formatting, runs `terraform init -backend=false` and `terraform validate`, then displays provider requirements, declared blocks and a dependency graph. It inspects Terraform state only if a state file is present.
+Each job checks out the repository, installs Terraform CLI 1.10.5, checks formatting with \`terraform fmt -check -recursive\`, initializes without a backend using \`terraform init -backend=false\`, and runs \`terraform validate\`. It also displays provider requirements, declared Terraform blocks and a dependency graph. State inspection is skipped when no state file is present.
 
 ### What the workflow does not do
 
 - It does not configure AWS credentials or connect to an AWS account.
-- It does not run `terraform plan`, `terraform apply` or destroy.
+- It does not run \`terraform plan\`, \`terraform apply\` or \`terraform destroy\`.
 - It does not create, update or delete AWS resources.
 
-Validation checks configuration syntax and consistency, not AWS permissions, quotas, service-side constraints or runtime behavior. The workflow's formatting check does not commit changes to the repository.
+Validation checks configuration syntax and consistency; it does not prove that AWS permissions, quotas, service-side constraints or runtime behavior will work in a real deployment.
 
 ## Run checks locally (no AWS deployment)
 
@@ -60,22 +63,22 @@ Prerequisite: Terraform CLI 1.10.0 or later.
 
 From PowerShell, for example:
 
-```powershell
-cd examples/aws/s3
+\`\`\`powershell
+Set-Location .\\aws-resources\\s3
 terraform fmt -recursive
 terraform init -backend=false
 terraform validate
 terraform providers
 terraform graph -type=plan
-```
+\`\`\`
 
-Repeat from `examples/aws/ec2`, `vpc`, `alb`, `route53`, `lambda` and `aurora`.
+Repeat from \`aws-resources\\ec2\`, \`vpc\`, \`alb\`, \`route53\`, \`lambda\` and \`aurora\`.
 
-These commands do not provision AWS infrastructure.
+These commands validate the configuration and do not provision AWS infrastructure.
 
 ## Cost and deployment safety
 
-Do not run `terraform apply` unless you intend to create resources and have reviewed the charges.
+Do not run \`terraform apply\` unless you intend to create resources and have reviewed the charges.
 
 - EC2 can incur compute, storage and public IPv4 charges.
 - ALB incurs hourly and usage charges.
@@ -84,7 +87,7 @@ Do not run `terraform apply` unless you intend to create resources and have revi
 - **Aurora is not a free resource.** Serverless v2 can incur database capacity, storage and I/O charges.
 - NAT gateways, public IPv4 addresses and data transfer can also cost money.
 
-The Aurora example enables deletion protection and requires a database password. Never commit credentials, `terraform.tfvars` or Terraform state files to Git.
+The Aurora example enables deletion protection and requires a database password. Never commit credentials, \`terraform.tfvars\` or Terraform state files to Git.
 
 ## Suggested learning order
 

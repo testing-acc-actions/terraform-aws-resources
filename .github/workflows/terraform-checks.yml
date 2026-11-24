@@ -1,4 +1,4 @@
-name: Terraform Checks and AWS Examples
+name: Terraform Checks and AWS Resources
 
 on:
   push:
@@ -12,16 +12,16 @@ permissions:
 
 jobs:
   terraform-checks:
-    name: Validate ${{ matrix.example }}
+    name: Validate \${{ matrix.resource }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        example: [s3, ec2, vpc, alb, route53, lambda, aurora]
+        resource: [s3, ec2, vpc, alb, route53, lambda, aurora]
 
     defaults:
       run:
-        working-directory: examples/aws/${{ matrix.example }}
+        working-directory: aws-resources/\${{ matrix.resource }}
 
     steps:
       - name: Checkout repository
@@ -32,17 +32,17 @@ jobs:
         with:
           terraform_version: 1.10.5
 
-      - name: Show repository and example files
+      - name: Show repository and resource files
         working-directory: .
         run: |
           echo "===== REPOSITORY FILE TREE ====="
           find . -maxdepth 5 -type f ! -path './.git/*' | sort
-          echo "===== CURRENT EXAMPLE ====="
-          find "examples/aws/${{ matrix.example }}" -maxdepth 4 -type f | sort
+          echo "===== CURRENT AWS RESOURCE ====="
+          find "aws-resources/\${{ matrix.resource }}" -maxdepth 4 -type f | sort
 
-      - name: Verify Terraform formatting
-        run: terraform fmt
-        
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive
+
       - name: Initialize Terraform without backend
         run: terraform init -backend=false
 
@@ -81,5 +81,3 @@ jobs:
             echo "No terraform.tfstate found; state inspection is skipped."
             echo "This validation workflow does not create AWS resources."
           fi
-
-    
