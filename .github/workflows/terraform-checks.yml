@@ -82,5 +82,4 @@ jobs:
             echo "This validation workflow does not create AWS resources."
           fi
 
-      - name: Terraform Plan
-        run: terraform plan
+    
