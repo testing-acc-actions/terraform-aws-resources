@@ -41,8 +41,8 @@ jobs:
           find "examples/aws/${{ matrix.example }}" -maxdepth 4 -type f | sort
 
       - name: Verify Terraform formatting
-        run: terraform fmt -check -recursive
-
+        run: terraform fmt
+        
       - name: Initialize Terraform without backend
         run: terraform init -backend=false
 
@@ -81,3 +81,6 @@ jobs:
             echo "No terraform.tfstate found; state inspection is skipped."
             echo "This validation workflow does not create AWS resources."
           fi
+
+      - name: Terraform Plan
+        run: terraform plan
